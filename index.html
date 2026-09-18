@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IBS Entrance Practice Exam</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* Soft gray-blue background */
+            color: #1e293b;
+        }
+        /* Smooth, professional fade transitions */
+        .fade-enter {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+        .fade-enter-active {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+        }
+        /* Custom smooth scrollbar for the review section */
+        .review-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .review-container::-webkit-scrollbar-track {
+            background: #f1f5f9; 
+            border-radius: 4px;
+        }
+        .review-container::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        .review-container::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+        .radio-custom:checked + label {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-blue-200">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-10">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-gray-800 tracking-tight">IBS Entrance Exam</h1>
+            <div id="progress-indicator" class="hidden text-sm font-medium text-gray-500">
+                Question <span id="current-q-num">1</span> of 30
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow flex items-center justify-center p-4">
+        <div id="app-container" class="w-full max-w-3xl bg-white rounded-xl shadow-sm border border-gray-100 p-6 sm:p-8 fade-enter fade-enter-active">
+            <!-- Dynamic Content Injected Here -->
+        </div>
+    </main>
+
+    <script>
+        // Data Structure combining the 20 PDF questions + 10 additional questions to reach 30 per subject
+        const quizData = {
+            mathematics: [
+                { q: "What is 15% of 240?", options: ["24", "30", "36", "40"], answer: 2 },
+                { q: "Solve: 3x + 7 = 22", options: ["3", "5", "7", "9"], answer: 1 },
+                { q: "A product costs $500 and is discounted by 12%. What is the final price?", options: ["$440", "$450", "$460", "$488"], answer: 0 },
+                { q: "What is 3/4 + 1/8?", options: ["5/8", "6/8", "7/8", "1"], answer: 2 },
+                { q: "A bank account has $2,500. A customer withdraws $675. What remains?", options: ["$1,725", "$1,825", "$1,875", "$2,175"], answer: 1 },
+                { q: "Calculate the simple interest on $1,500 at 6% per year for 2 years.", options: ["$90", "$120", "$180", "$240"], answer: 0 },
+                { q: "The ratio of boys to girls is 2:3. If there are 30 students, how many are girls?", options: ["10", "12", "18", "20"], answer: 2 },
+                { q: "A trader buys an item for $80 and sells it for $100. What is the profit percentage?", options: ["20%", "25%", "30%", "40"], answer: 1 },
+                { q: "What is the average of 10, 20, 30, 40, and 50?", options: ["25", "30", "35", "40"], answer: 1 },
+                { q: "If 5 notebooks cost $15, how much do 8 notebooks cost at the same rate?", options: ["$18", "$20", "$24", "$30"], answer: 2 },
+                { q: "Solve: 5x - 10 = 25.", options: ["5", "6", "7", "8"], answer: 2 },
+                { q: "A car travels 180 km in 3 hours. What is its average speed?", options: ["50 km/h", "60 km/h", "70 km/h", "90 km/h"], answer: 1 },
+                { q: "What is 0.25 x 400?", options: ["25", "50", "100", "125"], answer: 2 },
+                { q: "A salary of $800 increases by 10%. What is the new salary?", options: ["$810", "$860", "$880", "$900"], answer: 2 },
+                { q: "If 4 workers finish a job in 6 days at the same rate, how many worker-days are required?", options: ["10", "20", "24", "30"], answer: 2 },
+                { q: "What is 2.5% of $2,000?", options: ["$25", "$40", "$50", "$75"], answer: 2 },
+                { q: "A number is increased from 200 to 250. What is the percentage increase?", options: ["20%", "25%", "30%", "50%"], answer: 1 },
+                { q: "What is the perimeter of a rectangle 8 cm long and 5 cm wide?", options: ["13 cm", "26 cm", "40 cm", "80 cm"], answer: 1 },
+                { q: "If $1,000 earns $50 interest in one year, what is the simple annual interest rate?", options: ["2%", "5%", "10%", "50%"], answer: 1 },
+                { q: "A shop gives a 20% discount on a $150 item. What is the discount amount?", options: ["$20", "$25", "$30", "$35"], answer: 2 },
+                // 10 Added questions to reach 30
+                { q: "What is the square root of 144?", options: ["10", "12", "14", "16"], answer: 1 },
+                { q: "Solve: 2x = 16", options: ["4", "6", "8", "10"], answer: 2 },
+                { q: "What is 10% of 500?", options: ["5", "50", "500", "5000"], answer: 1 },
+                { q: "Convert 1/2 to a decimal.", options: ["0.2", "0.5", "0.12", "1.2"], answer: 1 },
+                { q: "What is 3 cubed (3^3)?", options: ["9", "12", "27", "81"], answer: 2 },
+                { q: "If a rectangle has an area of 50 and length of 10, what is the width?", options: ["5", "10", "40", "60"], answer: 0 },
+                { q: "What is the next number: 2, 4, 6, 8, ...?", options: ["9", "10", "11", "12"], answer: 1 },
+                { q: "Solve: 10 - 2 * 3", options: ["24", "4", "16", "8"], answer: 1 },
+                { q: "What is 100 divided by 4?", options: ["20", "25", "30", "40"], answer: 1 },
+                { q: "If x = 3, what is x^2 + 1?", options: ["7", "9", "10", "12"], answer: 2 }
+            ],
+            english: [
+                { q: "She ___ to school every day.", options: ["go", "goes", "going", "went"], answer: 1 },
+                { q: "They ___ to the bank yesterday.", options: ["go", "goes", "went", "going"], answer: 2 },
+                { q: "I need ___ umbrella.", options: ["a", "an", "the", "no article"], answer: 1 },
+                { q: "Choose the correct sentence.", options: ["He don't like math.", "He doesn't likes math.", "He doesn't like math.", "He not like math."], answer: 2 },
+                { q: "What is the closest meaning of 'purchase'?", options: ["sell", "buy", "borrow", "lose"], answer: 1 },
+                { q: "The money is ___ the bank account.", options: ["in", "on", "at", "by"], answer: 0 },
+                { q: "If I ___ enough money, I will buy a laptop.", options: ["have", "had", "having", "has"], answer: 0 },
+                { q: "Which word is the opposite of 'increase'?", options: ["grow", "rise", "decrease", "improve"], answer: 2 },
+                { q: "He has ___ finished his homework.", options: ["already", "yesterday", "tomorrow", "last"], answer: 0 },
+                { q: "Choose the correct plural of 'bank'.", options: ["banks", "bankes", "bankies", "bank's"], answer: 0 },
+                { q: "The bank ___ open at 8 a.m. every day.", options: ["are", "is", "be", "am"], answer: 1 },
+                { q: "What does 'borrow' mean?", options: ["Give permanently", "Take temporarily and return", "Sell cheaply", "Save money"], answer: 1 },
+                { q: "Which sentence is in the past tense?", options: ["She works at a bank.", "She is working at a bank.", "She worked at a bank.", "She will work at a bank."], answer: 2 },
+                { q: "There ___ many students in the classroom.", options: ["is", "are", "was", "be"], answer: 1 },
+                { q: "He is interested ___ banking.", options: ["on", "at", "in", "for"], answer: 2 },
+                { q: "Choose the correct comparative form: 'This test is ___ than the last one.'", options: ["easy", "easiest", "easier", "more easy"], answer: 2 },
+                { q: "What is the meaning of 'deposit'?", options: ["Money put into an account", "Money stolen from a bank", "A bank employee", "A loan payment only"], answer: 0 },
+                { q: "Read: 'Dara deposited $500 and withdrew $120.' How much remained?", options: ["$320", "$380", "$400", "$620"], answer: 1 },
+                { q: "Choose the correct word: 'The customer ___ a loan last month.'", options: ["apply", "applies", "applied for", "applying"], answer: 2 },
+                { q: "Which sentence is grammatically correct?", options: ["I have two bank account.", "I has two bank accounts.", "I have two bank accounts.", "I having two bank accounts."], answer: 2 },
+                // 10 Added questions to reach 30
+                { q: "I ___ a book right now.", options: ["am reading", "reads", "read", "reading"], answer: 0 },
+                { q: "They ___ been friends for ten years.", options: ["has", "have", "having", "had"], answer: 1 },
+                { q: "The meeting is ___ Monday.", options: ["in", "at", "on", "for"], answer: 2 },
+                { q: "Synonym for 'happy' is:", options: ["sad", "joyful", "angry", "tired"], answer: 1 },
+                { q: "He speaks English very ___.", options: ["good", "well", "bad", "nice"], answer: 1 },
+                { q: "Where ___ you yesterday?", options: ["are", "is", "were", "was"], answer: 2 },
+                { q: "I don't have ___ money.", options: ["some", "any", "many", "a"], answer: 1 },
+                { q: "She is the ___ student in the class.", options: ["smart", "smarter", "smartest", "most smart"], answer: 2 },
+                { q: "What ___ you do for a living?", options: ["does", "do", "are", "is"], answer: 1 },
+                { q: "Please turn ___ the lights before you leave.", options: ["off", "on", "in", "at"], answer: 0 }
+            ],
+            knowledge: [
+                { q: "What is the currency of Cambodia?", options: ["Baht", "Riel", "Dong", "Kip"], answer: 1 },
+                { q: "What does NBC stand for in Cambodia's banking system?", options: ["National Business Council", "National Bank of Cambodia", "National Banking Corporation", "New Bank of Cambodia"], answer: 1 },
+                { q: "Which city is the capital of Cambodia?", options: ["Siem Reap", "Battambang", "Phnom Penh", "Sihanoukville"], answer: 2 },
+                { q: "What is a central bank?", options: ["A shop selling currency", "A country's main monetary and banking authority", "A private company", "A type of savings account"], answer: 1 },
+                { q: "What is inflation?", options: ["A general rise in prices", "A fall in population", "A bank transfer", "A decrease in wages only"], answer: 0 },
+                { q: "What is a loan?", options: ["Money borrowed and generally repaid", "A free gift", "A bank building", "A type of currency"], answer: 0 },
+                { q: "What is an interest rate?", options: ["A percentage charged on borrowing or earned on saving/investment", "A bank address", "A tax number", "A person's salary"], answer: 0 },
+                { q: "What is an exchange rate?", options: ["The price of a meal", "The value of one currency relative to another", "A bank password", "A loan contract"], answer: 1 },
+                { q: "Which organization is commonly abbreviated as IMF?", options: ["International Monetary Fund", "International Money Federation", "Internal Monetary Finance", "International Market Fund"], answer: 0 },
+                { q: "What does GDP generally measure?", options: ["A country's total economic output", "The number of banks", "A person's income", "The price of gold only"], answer: 0 },
+                { q: "Which country is NOT a member of ASEAN?", options: ["Cambodia", "Thailand", "Japan", "Vietnam"], answer: 2 },
+                { q: "What is a commercial bank?", options: ["A bank providing services such as deposits, loans, and payments", "A government ministry", "A school", "A currency exchange only"], answer: 0 },
+                { q: "What is a deposit?", options: ["Money placed into a bank account", "Money borrowed from a friend", "A tax", "A bank employee"], answer: 0 },
+                { q: "What is a withdrawal?", options: ["Putting money into an account", "Taking money out of an account", "Opening a bank", "Printing money"], answer: 1 },
+                { q: "What is financial literacy?", options: ["The ability to understand and manage financial matters", "The ability to speak many languages", "A type of loan", "A bank building"], answer: 0 },
+                { q: "What is a budget?", options: ["A plan for income and spending", "A bank card", "A currency", "A tax receipt only"], answer: 0 },
+                { q: "What is saving?", options: ["Setting aside money for future use", "Spending all income", "Borrowing money", "Exchanging currencies"], answer: 0 },
+                { q: "What is a debit card generally used for?", options: ["Making payments using money linked to a bank account", "Creating money", "Guaranteeing a loan", "Printing currency"], answer: 0 },
+                { q: "Which institution is Cambodia's central bank?", options: ["NBC", "IMF", "ASEAN", "WTO"], answer: 0 },
+                { q: "What is risk in finance?", options: ["The possibility that an outcome differs from what is expected", "Guaranteed profit", "A bank's opening time", "A type of currency"], answer: 0 },
+                // 10 Added questions to reach 30
+                { q: "What is a stock?", options: ["A share of ownership in a company", "A type of bond", "A government tax", "A bank deposit"], answer: 0 },
+                { q: "What does ATM stand for?", options: ["Automated Teller Machine", "Automatic Transaction Money", "Any Time Money", "Automated Transfer Mode"], answer: 0 },
+                { q: "A 'Bear Market' means stock prices are generally:", options: ["Rising", "Falling", "Stable", "Unpredictable"], answer: 1 },
+                { q: "A 'Bull Market' means stock prices are generally:", options: ["Rising", "Falling", "Stable", "Unpredictable"], answer: 0 },
+                { q: "What is the World Bank's primary goal?", options: ["Provide loans to developing countries", "Regulate global stock markets", "Print US Dollars", "Manage local banks"], answer: 0 },
+                { q: "What is a liability?", options: ["Something you own", "Something you owe", "Your salary", "Your savings"], answer: 1 },
+                { q: "What is an asset?", options: ["Something you own of value", "Money you owe", "A type of tax", "A financial penalty"], answer: 0 },
+                { q: "What does ROI stand for?", options: ["Return on Investment", "Rate of Interest", "Risk of Inflation", "Revenue on Income"], answer: 0 },
+                { q: "Which is a major export of Cambodia?", options: ["Automobiles", "Garments/Textiles", "Aircraft", "Software"], answer: 1 },
+                { q: "What is compound interest?", options: ["Interest on the principal only", "Interest on the principal and accumulated interest", "A flat fee", "A penalty for late payment"], answer: 1 }
+            ]
+        };
+
+        // Application State
+        let currentSubject = null;
+        let currentQuestions = [];
+        let currentIndex = 0;
+        let userAnswers = [];
+
+        const appContainer = document.getElementById('app-container');
+        const progressIndicator = document.getElementById('progress-indicator');
+        const currentQNum = document.getElementById('current-q-num');
+
+        // Helper: Trigger smooth fade animation
+        function triggerAnimation() {
+            appContainer.classList.remove('fade-enter-active');
+            void appContainer.offsetWidth; // Trigger reflow
+            appContainer.classList.add('fade-enter-active');
+        }
+
+        // 1. Render Subject Selection
+        function renderStartScreen() {
+            progressIndicator.classList.add('hidden');
+            appContainer.innerHTML = `
+                <div class="text-center pb-4">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Select a Subject</h2>
+                    <p class="text-gray-500 mb-8">Each subject contains 30 questions. Results and a smooth review will be available at the end.</p>
+                </div>
+                <div class="grid gap-4 sm:grid-cols-3">
+                    <button onclick="startSubject('mathematics')" class="group relative p-6 bg-white border border-gray-200 rounded-xl hover:border-blue-500 hover:shadow-md transition-all duration-300 ease-in-out text-center cursor-pointer flex flex-col items-center">
+                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                        </div>
+                        <h3 class="font-semibold text-gray-800">Mathematics</h3>
+                    </button>
+                    <button onclick="startSubject('english')" class="group relative p-6 bg-white border border-gray-200 rounded-xl hover:border-indigo-500 hover:shadow-md transition-all duration-300 ease-in-out text-center cursor-pointer flex flex-col items-center">
+                        <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path></svg>
+                        </div>
+                        <h3 class="font-semibold text-gray-800">English</h3>
+                    </button>
+                    <button onclick="startSubject('knowledge')" class="group relative p-6 bg-white border border-gray-200 rounded-xl hover:border-emerald-500 hover:shadow-md transition-all duration-300 ease-in-out text-center cursor-pointer flex flex-col items-center">
+                        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <h3 class="font-semibold text-gray-800">Gen. Knowledge</h3>
+                    </button>
+                </div>
+            `;
+            triggerAnimation();
+        }
+
+        // 2. Start the Selected Subject
+        function startSubject(subject) {
+            currentSubject = subject;
+            currentQuestions = quizData[subject];
+            currentIndex = 0;
+            userAnswers = new Array(30).fill(null); 
+            progressIndicator.classList.remove('hidden');
+            renderQuestion();
+        }
+
+        // 3. Render Individual Question
+        function renderQuestion() {
+            const qData = currentQuestions[currentIndex];
+            currentQNum.innerText = currentIndex + 1;
+            
+            let optionsHtml = qData.options.map((opt, i) => {
+                const isSelected = userAnswers[currentIndex] === i ? 'checked' : '';
+                return `
+                <div class="relative mb-3">
+                    <input type="radio" name="q-option" id="opt-${i}" value="${i}" class="radio-custom hidden" ${isSelected} onchange="selectAnswer(${i})">
+                    <label for="opt-${i}" class="block w-full p-4 border border-gray-200 rounded-lg cursor-pointer transition-all duration-200 ease-in-out hover:bg-gray-50 hover:border-gray-300 text-gray-700">
+                        <span class="inline-block w-6 font-semibold text-gray-400 mr-2">${String.fromCharCode(65 + i)}.</span> ${opt}
+                    </label>
+                </div>`;
+            }).join('');
+
+            const isLast = currentIndex === currentQuestions.length - 1;
+            const btnClass = "px-6 py-2.5 rounded-lg font-medium transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1";
+
+            appContainer.innerHTML = `
+                <div class="mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800 leading-snug">${currentIndex + 1}. ${qData.q}</h2>
+                </div>
+                <div class="mb-8">
+                    ${optionsHtml}
+                </div>
+                <div class="flex justify-between items-center border-t border-gray-100 pt-6">
+                    <button onclick="prevQuestion()" class="${btnClass} bg-gray-100 text-gray-600 hover:bg-gray-200 ${currentIndex === 0 ? 'invisible' : ''}">Previous</button>
+                    ${isLast 
+                        ? `<button onclick="submitQuiz()" class="${btnClass} bg-blue-600 text-white hover:bg-blue-700 shadow-sm">Submit Exam</button>`
+                        : `<button onclick="nextQuestion()" class="${btnClass} bg-gray-800 text-white hover:bg-gray-900 shadow-sm">Next</button>`
+                    }
+                </div>
+            `;
+            triggerAnimation();
+        }
+
+        function selectAnswer(optIndex) {
+            userAnswers[currentIndex] = optIndex;
+            // The CSS :checked pseudo-class handles the visual state instantly
+        }
+
+        function nextQuestion() {
+            if (currentIndex < currentQuestions.length - 1) {
+                currentIndex++;
+                renderQuestion();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                renderQuestion();
+            }
+        }
+
+        // 4. Submit and Process Score
+        function submitQuiz() {
+            progressIndicator.classList.add('hidden');
+            let score = 0;
+            userAnswers.forEach((ans, i) => {
+                if (ans === currentQuestions[i].answer) score++;
+            });
+            const percent = Math.round((score / currentQuestions.length) * 100);
+
+            appContainer.innerHTML = `
+                <div class="text-center py-6">
+                    <div class="inline-flex items-center justify-center w-20 h-20 rounded-full ${percent >= 50 ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'} mb-4">
+                        <span class="text-2xl font-bold">${percent}%</span>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Exam Completed</h2>
+                    <p class="text-gray-600 mb-8">You scored ${score} out of 30 in ${currentSubject.charAt(0).toUpperCase() + currentSubject.slice(1)}.</p>
+                    
+                    <div class="flex flex-col sm:flex-row justify-center gap-4">
+                        <button onclick="renderReviewFastScroll()" class="px-6 py-2.5 bg-gray-800 text-white rounded-lg font-medium hover:bg-gray-900 transition-all duration-200">Review Answers</button>
+                        <button onclick="renderStartScreen()" class="px-6 py-2.5 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-all duration-200">Take Another Subject</button>
+                    </div>
+                </div>
+            `;
+            triggerAnimation();
+        }
+
+        // 5. Fast Scroll, Smooth Review Screen
+        function renderReviewFastScroll() {
+            let reviewHtml = `
+                <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-100">
+                    <h2 class="text-xl font-bold text-gray-800">Review: ${currentSubject.charAt(0).toUpperCase() + currentSubject.slice(1)}</h2>
+                    <button onclick="renderStartScreen()" class="text-sm px-4 py-2 bg-gray-100 text-gray-600 rounded hover:bg-gray-200 transition-colors">Home</button>
+                </div>
+                <div class="review-container max-h-[65vh] overflow-y-auto pr-2 space-y-6">
+            `;
+
+            currentQuestions.forEach((q, index) => {
+                const userAns = userAnswers[index];
+                const correctAns = q.answer;
+                const isCorrect = userAns === correctAns;
+                
+                let optionsList = q.options.map((opt, i) => {
+                    let styleClass = "text-gray-600";
+                    let icon = "";
+                    
+                    if (i === correctAns) {
+                        styleClass = "text-emerald-700 font-semibold bg-emerald-50 rounded px-2 py-1 border border-emerald-200";
+                        icon = "✓ ";
+                    } else if (i === userAns && !isCorrect) {
+                        styleClass = "text-red-600 font-medium bg-red-50 rounded px-2 py-1 border border-red-200";
+                        icon = "✗ ";
+                    } else {
+                        styleClass = "px-2 py-1";
+                    }
+                    return `<div class="mb-1 ${styleClass} transition-colors">${icon}${String.fromCharCode(65 + i)}. ${opt}</div>`;
+                }).join('');
+
+                reviewHtml += `
+                    <div class="p-5 rounded-lg border ${isCorrect ? 'border-emerald-100 bg-emerald-50/30' : 'border-red-100 bg-red-50/30'}">
+                        <div class="flex gap-3 mb-3">
+                            <span class="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold ${isCorrect ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'}">
+                                ${index + 1}
+                            </span>
+                            <h3 class="font-medium text-gray-800 pt-0.5">${q.q}</h3>
+                        </div>
+                        <div class="pl-10 text-sm">
+                            ${optionsList}
+                        </div>
+                    </div>
+                `;
+            });
+
+            reviewHtml += `</div>
+                <div class="mt-6 text-center">
+                    <button onclick="document.querySelector('.review-container').scrollTo({top: 0, behavior: 'smooth'})" class="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors">
+                        ↑ Back to Top
+                    </button>
+                </div>
+            `;
+            
+            appContainer.innerHTML = reviewHtml;
+            triggerAnimation();
+        }
+
+        // Initialize App
+        renderStartScreen();
+    </script>
+</body>
+</html>
